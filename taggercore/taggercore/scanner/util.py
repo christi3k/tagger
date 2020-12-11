@@ -25,17 +25,23 @@ from typing import Any, List
 
 from taggercore.model import Resource, Tag
 
-
 def create_resource(resource: Any) -> Resource:
     """Map a skew resource to a taggercore resource"""
+    print(resource)
+    try:
+        tag_items = [Tag(key, value) for key, value in resource.tags.items()]
+    except Exception as e:
+        print('error encountered')
+        print(e)
+        tag_items = []
+
     return Resource(
         arn=resource.arn,
         id=resource.id,
         resource_type=resource.resourcetype,
-        current_tags=[Tag(key, value) for key, value in resource.tags.items()],
+        current_tags=tag_items,
         name=resource.name,
     )
-
 
 def sort_resources(resources: List[Resource]) -> List[Resource]:
     return sorted(resources, key=lambda x: (x.service, x.resource_type))
