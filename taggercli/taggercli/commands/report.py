@@ -52,6 +52,9 @@ def create_report_from_cli(
     output_path: Optional[str] = typer.Option(
         None, help="output path for the created html report"
     ),
+    report_name: Optional[str] = typer.Option(
+        None, help="filename for the created html report"
+    ),
 ):
     init_config()
     config = get_config()
@@ -66,10 +69,10 @@ def create_report_from_cli(
     console.print("Scanning completed")
     console.print(f"Found {len(resources_with_diffs)} resources")
     dashboard_data = prepare_data_for_dashboard_template(
-        account_id, datetime.now(timezone.utc), resources_with_diffs
+        account_id, region, datetime.now(timezone.utc), resources_with_diffs
     )
     rendered_report = render_template(**dashboard_data)
-    write_report(rendered_report, output_path)
+    write_report(rendered_report, output_path, report_name)
 
 
 def render_template(**kwargs) -> str:
@@ -79,6 +82,7 @@ def render_template(**kwargs) -> str:
     return template.render(
         metrics_by_service=kwargs["metrics_by_service"],
         account_id=kwargs["account_id"],
+        region=kwargs["region"],
         creation_datetime=kwargs["creation_datetime"],
         resources_by_service=kwargs["resources_by_service"],
     )
@@ -86,6 +90,7 @@ def render_template(**kwargs) -> str:
 
 def prepare_data_for_dashboard_template(
     account_id: str,
+    region: str,
     creation_datetime: datetime,
     resources_with_diffs: List[ResourceWithTagDiffs],
 ) -> Dict[str, Any]:
@@ -99,6 +104,7 @@ def prepare_data_for_dashboard_template(
     metrics_by_service = metrics_for_dashboard_by_service(resources_by_service)
     return {
         "account_id": account_id,
+        "region": region,
         "creation_datetime": creation_datetime.strftime("%c (%Z)"),
         "metrics_by_service": metrics_by_service,
         "resources_by_service": resources_sorted_by_type_within_service,
@@ -124,11 +130,11 @@ def metrics_for_dashboard_by_service(
     return metrics_by_service
 
 
-def write_report(html_report: str, output_path: str = None):
+def write_report(html_report: str, output_path: str = None, report_name: str = REPORT_FILE_NAME):
     if output_path:
-        file_path = Path(output_path).joinpath(REPORT_FILE_NAME)
+        file_path = Path(output_path).joinpath(report_name)
     else:
-        file_path = REPORT_FILE_NAME
+        file_path = report_name
     with open(file_path, "w") as result_file:
         result_file.write(html_report)
     console.print(
