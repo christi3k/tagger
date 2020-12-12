@@ -78,7 +78,8 @@ class AbstractResourceGroupApiTagger(ABC):
         arns_in_sublists = self.split_into_sublist()
         tagging_results = []
         for sublist in arns_in_sublists:
-            tagging_results.append(self._tag_arn_list(client, sublist))
+            if len(sublist):
+                tagging_results.append(self._tag_arn_list(client, sublist))
 
         return tagging_results
 
@@ -100,6 +101,9 @@ class AbstractResourceGroupApiTagger(ABC):
         try:
             response = client.tag_resources(ResourceARNList=arn_list, Tags=tags)
         except ClientError as e:
+            print(e)
+            print(arn_list)
+            print(tags)
             error_code = e.response["Error"]["Code"]
             if error_code == "InvalidParameterException":
                 self._handle_parameter_exception(e, client, arn_list)
@@ -107,7 +111,12 @@ class AbstractResourceGroupApiTagger(ABC):
                 raise e
             response = {}
         except Exception as e:
+            print(e)
+            print(arn_list)
+            print(tags)
             raise e
+        # if not response:
+            # return
         return self._transform_response_to_tagging_result(arn_list, response)
 
     def _handle_parameter_exception(

@@ -54,6 +54,7 @@ class RegionScanner:
         :return:
         """
         resources = self._scan_region(resource_types_to_exclude)
+        # print(resources)
         resources_with_manipulated_arns = (
             self.manipulate_arn(resource) for resource in resources
         )
@@ -62,18 +63,24 @@ class RegionScanner:
     def _scan_region(self, resource_types_to_exclude: List[str]) -> List[Resource]:
         arn = skew.ARN()
         logger.info("Starting to scan in region {}".format(self._region))
+        # print('scanning region')
         all_scanned_resources = []
 
         for service in arn.service.choices():
+            # print(f"service: {service}.")
             if service in GLOBAL_SERVICES:
                 continue
             service_uri = "arn:aws:" + service + ":" + self._region + ":*:*/*"
             resources = skew.scan(service_uri)
             logger.info(f"Scanning {service_uri}")
+            # print(f"resources: {resources}")
             for resource in resources:
+                # print(f"resource: {resource}")
                 if resource.resourcetype in resource_types_to_exclude:
                     continue
-                all_scanned_resources.append(create_resource(resource))
+                created_resource = create_resource(resource)
+                if created_resource is not None:
+                    all_scanned_resources.append(created_resource)
         logger.info("Scanning completed for region {}".format(self._region))
         return sort_resources(all_scanned_resources)
 

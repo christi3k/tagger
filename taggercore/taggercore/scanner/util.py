@@ -24,16 +24,60 @@
 from typing import Any, List
 
 from taggercore.model import Resource, Tag
+import inspect
 
 def create_resource(resource: Any) -> Resource:
     """Map a skew resource to a taggercore resource"""
-    print(resource)
+    # print(resource)
+    # print(dir(resource))
+    # print(type(resource))
+    # print(f"name: {resource.name}")
+    # print(f"id: {resource.id}")
+    # print(f"arn: {resource.arn}")
+    # print(inspect.getmro(type(resource)))
     try:
         tag_items = [Tag(key, value) for key, value in resource.tags.items()]
     except Exception as e:
         print('error encountered')
+        print(f"arn: {resource.arn}")
         print(e)
-        tag_items = []
+        return None
+
+    excluded_arns = [
+    ]
+
+    excluded_roles = [
+        "CiscoBaselinePasswordPolicyRole",
+        "CloudHealthIAMRole",
+        "ContinuousSecurityBuddyLambdaRole",
+        "CSIRT_Investigator_Role",
+        "CustomStacksDeploymentRole",
+        "engineer",
+        "InfoSecAuditor",
+        "network_api",
+        "network_support",
+        "OrganizationAccountAccessRole",
+        "owner",
+        "network_support",
+        "SECOPS_Investigator_Role",
+        "StreamlineIdPManagerIAMRole",
+    ]
+
+    excluded_tags = set([
+       Tag('ResourceOwner', 'CIE_SysEngComputeCore'),
+       Tag('ApplicationName', 'Infosec Qualys')
+    ])
+
+    if(resource.resourcetype == 'role' and resource.name in excluded_roles):
+        return None
+
+    if(resource.arn in excluded_arns):
+        return None
+
+    if excluded_tags.intersection(tag_items):
+        print('EXCLUDE DUE TO MATCHING TAGS')
+        return None
+    
 
     return Resource(
         arn=resource.arn,

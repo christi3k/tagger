@@ -51,6 +51,7 @@ class SuperTagger:
     """
 
     def __init__(self, resources: List[Resource], tags: List[Tag]):
+        print(resources)
         self._resources = resources
         self._tags = tags
         (
@@ -129,8 +130,12 @@ class SuperTagger:
         return self.__reduce_to_single_result(non_regional_result)
 
     def tag_all(self):
+        # print('tag regional resources')
         regional_results = self.tag_regions()
+        # regional_results = []
+        # print('tag non-regional resources')
         non_regional_results = self.tag_non_regional_resources()
+        # non_regional_results = []
         return TaggingResult(
             non_regional_results.successful_arns + regional_results.successful_arns,
             {**non_regional_results.failed_arns, **regional_results.failed_arns},

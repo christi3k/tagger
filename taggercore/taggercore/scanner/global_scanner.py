@@ -55,6 +55,8 @@ class GlobalScanner:
                 if resource.resourcetype in resource_types_to_exclude:
                     continue
                 else:
-                    all_scanned_resources.append(create_resource(resource))
+                    created_resource = create_resource(resource)
+                    if created_resource is not None:
+                        all_scanned_resources.append(created_resource)
         logger.info("Scanning completed for global services")
         return sort_resources(all_scanned_resources)
