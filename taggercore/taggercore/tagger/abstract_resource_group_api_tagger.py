@@ -80,6 +80,7 @@ class AbstractResourceGroupApiTagger(ABC):
         for sublist in arns_in_sublists:
             if len(sublist):
                 tagging_results.append(self._tag_arn_list(client, sublist))
+                time.sleep(15) # seconds
 
         return tagging_results
 
@@ -98,6 +99,10 @@ class AbstractResourceGroupApiTagger(ABC):
 
     def _tag_arn_list(self, client: BaseClient, arn_list: List[str]):
         tags = {tag.key: tag.value for tag in self.tags}
+        # chunk_size = 10
+        # for i in range(0, len(arn_list)/chunk_size):
+            # arn_list[i*chunk_size:(1+i)*chunk_size]
+            # pass
         try:
             response = client.tag_resources(ResourceARNList=arn_list, Tags=tags)
         except ClientError as e:
