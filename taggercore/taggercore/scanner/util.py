@@ -65,7 +65,8 @@ def create_resource(resource: Any) -> Resource:
 
     excluded_tags = set([
        Tag('ResourceOwner', 'CIE_SysEngComputeCore'),
-       Tag('ApplicationName', 'Infosec Qualys')
+       Tag('ApplicationName', 'Infosec Qualys'),
+       Tag('StreamlineAWSManaged', 'True')
     ])
 
     if(resource.resourcetype == 'role' and resource.name in excluded_roles):
