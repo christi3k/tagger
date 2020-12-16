@@ -70,7 +70,7 @@ class RegionScanner:
 
         for service in arn.service.choices():
             print(f"service: {service}.")
-            if service in GLOBAL_SERVICES or service == 'cloudwatch':
+            if service in GLOBAL_SERVICES:
                 continue
             service_uri = "arn:aws:" + service + ":" + self._region + ":*:*/*"
             resources = skew.scan(service_uri)

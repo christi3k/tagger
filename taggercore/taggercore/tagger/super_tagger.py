@@ -25,7 +25,7 @@ import logging
 from functools import reduce
 from typing import List, Tuple
 
-from taggercore.model import Resource, Tag, TaggingResult
+from taggercore.model import Resource, Tag, TaggingResult, ResourceWithTagDiffs
 from taggercore.tagger import GlobalTagger, IamTagger, RegionTagger, ServiceTagger
 
 logger = logging.getLogger(__name__)
@@ -51,14 +51,22 @@ class SuperTagger:
     """
 
     def __init__(self, resources: List[Resource], tags: List[Tag]):
-        # print(resources)
-        self._resources = resources
+        print(f"\nResources scanned: {len(resources)}")
+        resources_to_tag = []
+        for resource in resources:
+            tag_diffs = ResourceWithTagDiffs(resource, resource.compare_tags(tags))
+            if tag_diffs.properly_tagged != True:
+                resources_to_tag.append(resource)
+    
+        print(f"\nResources to update: {len(resources_to_tag)}")
+
+        self._resources = resources_to_tag
         self._tags = tags
         (
             service_tagger_res,
             regional_res,
             global_res,
-        ) = self._split_resources_for_taggers(resources)
+        ) = self._split_resources_for_taggers(resources_to_tag)
         self._service_taggers = self._init_service_taggers(service_tagger_res)
         self._region_taggers = self._init_region_taggers(regional_res)
         self._global_tagger = self._init_global_tagger(global_res)
