@@ -100,7 +100,8 @@ class AbstractResourceGroupApiTagger(ABC):
                         throttled_arns = {arn: error for arn, error in results.failed_arns.items() if error == 'Rate exceeded'}
                         print(f"\nthrottled arns: {throttled_arns}")
                         if len(throttled_arns) > 0 and attempts < max_attempts:
-                            arns_to_try = throttled_arns.keys
+                            arns_to_try = list(throttled_arns.keys())
+                            attempts += 1
                             time.sleep(wait_seconds) # seconds
                         else:
                             done = True
@@ -166,16 +167,15 @@ class AbstractResourceGroupApiTagger(ABC):
     def _transform_response_to_tagging_result(
         self, list_of_arns: List[str], response: Dict[Any, Any]
     ) -> TaggingResult:
-        self._failed_arns = {
-            **self._failed_arns,
+        failed_arns = {
             **self._extract_failed_resource_arns(
                 response.get("FailedResourcesMap", {})
             ),
         }
         successful_arns = list(
-            filter(lambda arn: arn not in self._failed_arns, list_of_arns)
+            filter(lambda arn: arn not in failed_arns, list_of_arns)
         )
-        return TaggingResult(successful_arns, self._failed_arns)
+        return TaggingResult(successful_arns, failed_arns)
 
     @staticmethod
     def _extract_failed_resource_arns(
