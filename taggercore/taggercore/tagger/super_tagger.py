@@ -51,7 +51,7 @@ class SuperTagger:
     """
 
     def __init__(self, resources: List[Resource], tags: List[Tag]):
-        print(resources)
+        # print(resources)
         self._resources = resources
         self._tags = tags
         (

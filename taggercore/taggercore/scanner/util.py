@@ -70,15 +70,16 @@ def create_resource(resource: Any) -> Resource:
     ])
 
     if(resource.resourcetype == 'role' and resource.name in excluded_roles):
+        print('EXCLUDED DUE TO MATCHING IAM ROLES')
         return None
 
     if(resource.arn in excluded_arns):
+        print('EXCLUDED DUE TO MATCHING ARNS')
         return None
 
     if excluded_tags.intersection(tag_items):
-        print('EXCLUDE DUE TO MATCHING TAGS')
+        print('EXCLUDED DUE TO MATCHING TAGS')
         return None
-    
 
     return Resource(
         arn=resource.arn,
