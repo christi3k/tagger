@@ -66,6 +66,7 @@ def create_resource(resource: Any) -> Resource:
     excluded_tags = set([
        Tag('ResourceOwner', 'CIE_SysEngComputeCore'),
        Tag('ApplicationName', 'Infosec Qualys'),
+       Tag('ApplicationName', 'Rebox'),
        Tag('StreamlineAWSManaged', 'True')
     ])
 

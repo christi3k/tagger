@@ -155,16 +155,20 @@ class SuperTagger:
     ) -> TaggingResult:
         if not tagging_results:
             return TaggingResult([], {})
-        else:
-            flatted_results = [
-                tagging_result
-                for sublist in tagging_results
-                for tagging_result in sublist
-            ]
-            return reduce(
-                lambda t1, t2: TaggingResult(
-                    t1.successful_arns + t2.successful_arns,
-                    {**t1.failed_arns, **t2.failed_arns},
-                ),
-                flatted_results,
-            )
+
+        flatted_results = [
+            tagging_result
+            for sublist in tagging_results
+            for tagging_result in sublist
+        ]
+
+        if not flatted_results:
+            return TaggingResult([], {})
+
+        return reduce(
+            lambda t1, t2: TaggingResult(
+                t1.successful_arns + t2.successful_arns,
+                {**t1.failed_arns, **t2.failed_arns},
+            ),
+            flatted_results,
+        )

@@ -86,18 +86,20 @@ class AbstractResourceGroupApiTagger(ABC):
                 done = False
                 arns_to_try = sublist
                 attempts = 0
-                max_attempts = 5
-                wait_seconds = 1
+                max_attempts = 8
+                wait_seconds = 5
                 while not done:
                     results = self._tag_arn_list(client, arns_to_try)
                     tagging_results.append(TaggingResult(results.successful_arns, {}))
                     print(f"\nfailed arns: {results.failed_arns}")
                     if(len(results.failed_arns) > 0):
                         errored_arns = { arn: error for arn, error in results.failed_arns.items() if error != 'Rate exceeded' }
+                        print(f"\ncount of errored arns: {len(errored_arns)}")
                         print(f"\nerrored arns: {errored_arns}")
                         tagging_results.append(TaggingResult([], errored_arns))
                         # deal with throlled requests
                         throttled_arns = {arn: error for arn, error in results.failed_arns.items() if error == 'Rate exceeded'}
+                        print(f"\ncount of throttled arns: {len(throttled_arns)}")
                         print(f"\nthrottled arns: {throttled_arns}")
                         if len(throttled_arns) > 0 and attempts < max_attempts:
                             arns_to_try = list(throttled_arns.keys())
@@ -126,10 +128,10 @@ class AbstractResourceGroupApiTagger(ABC):
 
     def _tag_arn_list(self, client: BaseClient, arn_list: List[str]):
         tags = {tag.key: tag.value for tag in self.tags}
-        print(f"\nAttempting to tag: {arn_list}.")
+        # print(f"\nAttempting to tag: {arn_list}.")
         try:
             response = client.tag_resources(ResourceARNList=arn_list, Tags=tags)
-            print(response)
+            # print(response)
         except ClientError as e:
             print(f"\n{e}")
             print(f"\n {arn_list}")
