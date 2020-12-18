@@ -35,7 +35,7 @@ setup(
     packages=find_packages(),
     install_requires=["skew @ git+https://github.com/christi3k/skew.git#egg=skew"],
     extras_require={"dev": ["pytest", "tox", "pytest-cov", "pytest-mock", "black"]},
-    url="https://github.com/IT-EXPERTS-AT/tagger",
+    url="https://github.com/christi3k/tagger",
     license="License :: OSI Approved :: Apache Software License",
     author="IT-experts",
     author_email="github@it-experts.at",
